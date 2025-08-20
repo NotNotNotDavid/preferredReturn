@@ -15,31 +15,72 @@ public class Tranche {
      * EFFECTS: Creates a new tranche
      */
     public Tranche(double principle, int startMonth, String trancheId) {
-
+        this.principleRemaining = principle;
+        this.startMonth = startMonth;
+        this.trancheId = trancheId;
     }
 
 
     /*
      * REQUIES: POSITIVE NON-ZERO NUMBER
      * MODIFIES: principleRemaining, ifPaid
-     * EFFECTS: Calculates the total accumulated intrest for that month and adds to pR
+     * EFFECTS: makes the payment for this trench, changes ifPaid to true if fully paid off.
+     *          returns excess amounts
      * 
      */
     public double makePayment(double amount) {
-        return 0;
+        if (principleRemaining <= amount) {
+            double returnAmount = amount - principleRemaining;
+            principleRemaining = 0;
+            ifPaid = true;
+            return returnAmount;
+        }
+        else {
+            principleRemaining -= amount;
+            return 0;
+        }
+
     }
 
     /*
      * REQUIES: none
      * MODIFIES: preferredReturn
-     * EFFECTS: Calculates the total accumulated intrest for that month and adds to pR
+     * EFFECTS: Calculates the total accumulated intrest for that month and adds to pR if not paid
      * 
      */
     public double calculateInterest(int currentMonth) {
-        return 0;
+        double interestAccumulated = 0;
+        if (ifPaid) {
+            interestAccumulated = 0;
+            return interestAccumulated;
+        } else {
+            interestAccumulated = principleRemaining * Math.pow((1 + MONTHLY_RATE), currentMonth) - principleRemaining;
+            preferredReturn += interestAccumulated;
+            return interestAccumulated;
+        }
     }
-    // Getters
 
+    /*
+     * REQUIES: none
+     * MODIFIES: preferredReturn
+     * EFFECTS: Calculates the total accumulated intrest for that month and adds to pR if not paid
+     * 
+     */
+    public double calculateInterest() {
+
+        double interestAccumulated = 0;
+        if (ifPaid) {
+            interestAccumulated = 0;
+            return interestAccumulated;
+        } else {
+            interestAccumulated = principleRemaining * (1 + MONTHLY_RATE) - principleRemaining;
+            preferredReturn += interestAccumulated;
+            return interestAccumulated;
+        }
+    }
+
+
+    // Getters
     public double getPrincipleRemaining() {
         return principleRemaining;
     }

@@ -18,8 +18,8 @@ public class WorldTest {
     Tranche tranche1;
     Tranche tranche2;
     Tranche tranche3;
-    int tranche1Amount = 100;
-    int tranche2Amount = 200;
+    double tranche1Amount = 100;
+    double tranche2Amount = 200;
     private static final double ANNUAL_RATE = 0.08;
     private static final double MONTHLY_RATE = ANNUAL_RATE / 12;
 
