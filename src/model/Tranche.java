@@ -3,21 +3,23 @@ package model;
 public class Tranche {
     private double principleRemaining;
     private double preferredReturn; // TOTAL TRACKER
-    private int startMonth;
+    private int monthCounter;
     private String trancheId;
-    private static final double ANNUAL_RATE = 0.08;
-    private static final double MONTHLY_RATE = ANNUAL_RATE / 12;
-    private boolean ifPaid;
+    private boolean ifPaid; 
 
     /*
      * REQUIES: none
      * MODIFIES: none
      * EFFECTS: Creates a new tranche
      */
-    public Tranche(double principle, int startMonth, String trancheId) {
+    public Tranche(double principle, String trancheId) {
         this.principleRemaining = principle;
-        this.startMonth = startMonth;
         this.trancheId = trancheId;
+        this.monthCounter = 0;
+    }
+
+    public void addMonth() {
+        monthCounter++;
     }
 
 
@@ -29,8 +31,10 @@ public class Tranche {
      * 
      */
     public double makePayment(double amount) {
-        if (principleRemaining <= amount) {
-            double returnAmount = amount - principleRemaining;
+        double returnAmount = 0;
+
+        if (amount >= principleRemaining) {
+            returnAmount = amount - principleRemaining;
             principleRemaining = 0;
             ifPaid = true;
             return returnAmount;
@@ -54,8 +58,9 @@ public class Tranche {
             interestAccumulated = 0;
             return interestAccumulated;
         } else {
-            interestAccumulated = principleRemaining * Math.pow((1 + MONTHLY_RATE), currentMonth) - principleRemaining;
+            interestAccumulated = principleRemaining * Math.pow((1 + Fund.MPR), currentMonth) - principleRemaining;
             preferredReturn += interestAccumulated;
+            currentMonth = 0; //resets back to zero for new principle
             return interestAccumulated;
         }
     }
@@ -73,8 +78,8 @@ public class Tranche {
             interestAccumulated = 0;
             return interestAccumulated;
         } else {
-            interestAccumulated = principleRemaining * (1 + MONTHLY_RATE) - principleRemaining;
-            preferredReturn += interestAccumulated;
+            interestAccumulated = principleRemaining * Math.pow((1 + Fund.MPR), monthCounter) - principleRemaining;
+            monthCounter = 0;
             return interestAccumulated;
         }
     }
@@ -93,8 +98,12 @@ public class Tranche {
         return trancheId;
     }
 
-    public int getStartMonth() {
-        return startMonth;
+    public int getMonthCounter() {
+        return getMonthCounter();
+    }
+
+    public void setMonthCounter(int counter) {
+        this.monthCounter = counter;
     }
 
     public boolean getifPaid() {

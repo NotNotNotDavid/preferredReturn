@@ -1,4 +1,5 @@
 package test;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import model.*;
 
 public class WorldTest {
-       
+
     int month;
     World world1;
     Tranche tranche1;
@@ -23,30 +24,29 @@ public class WorldTest {
     private static final double ANNUAL_RATE = 0.08;
     private static final double MONTHLY_RATE = ANNUAL_RATE / 12;
 
-    PriorityQueue<Tranche> listOfTranches;
-    
+    ArrayList<Tranche> listOfTranches;
 
     @BeforeEach
     public void runBefore() {
         world1 = new World();
         month = 1;
-        PriorityQueue<Tranche> listOfTranches = new PriorityQueue<>(Comparator.comparingInt(t -> t.getStartMonth()));
-        tranche1 = new Tranche(100, 1, "Tranche C");
-        listOfTranches.add(tranche1);
+        listOfTranches = new ArrayList<>();
+        tranche1 = new Tranche(100, "Tranche C");
+        world1.addTranche(tranche1);
     }
 
     @Test
     public void testAddPayment() {
-        //note: month is 1 here
-        world1.addPayment(100);
+        // note: month is 1 here
+        world1.makePayment(100);
         assertEquals(0, tranche1.getPrincipleRemaining(), 0.1);
-        assertTrue(!tranche1.getifPaid());
+        assertTrue(tranche1.getifPaid());
     }
 
     @Test
     public void testAddPaymentSecondMonth() {
         world1.nextMonth();
-        world1.addPayment(50);
+        world1.makePayment(50);
         assertEquals(50, tranche1.getPrincipleRemaining(), 0.1);
         assertTrue(!tranche1.getifPaid());
     }
@@ -54,49 +54,50 @@ public class WorldTest {
     @Test
     public void testAddPaymentThirdMonthWithInterest() {
         // month 1
-        world1.addPayment(50);
         world1.nextMonth();
 
         // month 2
+        world1.makePayment(50);
         assertEquals(50, tranche1.getPrincipleRemaining(), 1);
         assertTrue(!tranche1.getifPaid());
 
         world1.nextMonth();
 
-        //month 3                       (2nd Month)                         (3rd Month)
-        double tranche1Interest = (100 * (1 + MONTHLY_RATE) - 100) + (50 * (1 + MONTHLY_RATE) - 50); // calculates month 1 and 2 and 3
+        // month 3 (2nd Month) (3rd Month)
+        double tranche1Interest = (100 * (1 + MONTHLY_RATE) - 100) + (50 * (1 + MONTHLY_RATE) - 50); 
         assertEquals(tranche1.getPreferredReturn(), tranche1Interest, 0.1);
     }
 
     @Test
     public void testAddPaymentPastFirst() {
-        tranche2 = new Tranche(200, 2, "Tranche B");
-        listOfTranches.add(tranche2);
+        tranche2 = new Tranche(200, "Tranche B");
+        world1.addTranche(tranche2);
         world1.nextMonth();
         world1.nextMonth();
-        world1.addPayment(101);
+        world1.makePayment(101);
         assertEquals(0, tranche1.getPrincipleRemaining(), 0.1);
-        assertEquals(299, tranche2.getPrincipleRemaining(), 0.1);
+        assertEquals(199, tranche2.getPrincipleRemaining(), 0.1);
         assertTrue(tranche1.getifPaid());
         assertTrue(!tranche2.getifPaid());
-    } 
+    }
 
     @Test
     public void testAddPaymentWhichIsFirst() {
 
         // NOTE THAT THERE WILL ALWAYS BE INTEREST COVERED:
-        // i.e. there will not be a scenario where there is an amount of payment that won't be counted
+        // i.e. there will not be a scenario where there is an amount of payment that
+        // won't be counted
 
         // month = 1
         world1.nextMonth();
 
         // month = 2
-        tranche2 = new Tranche(200, 2, "Tranche B");
-        listOfTranches.add(tranche2);
+        tranche2 = new Tranche(200, "Tranche B");
+        world1.addTranche(tranche2);
 
-        world1.addPayment(101);
+        world1.makePayment(101);
         assertEquals(0, tranche1.getPrincipleRemaining(), 0.1);
-        assertEquals(299, tranche2.getPrincipleRemaining(), 0.1);
+        assertEquals(199, tranche2.getPrincipleRemaining(), 0.1);
         assertTrue(tranche1.getifPaid());
         assertTrue(!tranche2.getifPaid());
         world1.nextMonth();
@@ -107,14 +108,29 @@ public class WorldTest {
 
         assertEquals(tranche1.getPreferredReturn(), tranche1Interest, 0.1);
         assertEquals(tranche2.getPreferredReturn(), tranche2Interest, 1);
-        
+
     }
 
-
-    @Test 
+    @Test
     public void testNextMonth() {
         world1.nextMonth();
         assertEquals(2, world1.getCurrentMonth());
+    }
+
+    @Test
+    public void testNextMonthInterest() {
+        world1.nextMonth();
+        double tranche1Interest = (100 * (1 + Fund.MPR) - 100);
+        assertEquals(tranche1Interest, tranche1.calculateInterest(), 0.01);
+    }
+
+    @Test
+    public void testNextNextMonthInterest() {
+        world1.nextMonth();
+        world1.nextMonth();
+        double tranche1Interest = (100 * Math.pow((1 + Fund.MPR),1) - 100) * 2;
+        assertEquals(tranche1Interest, tranche1.calculateInterest(), 0.01);
+        
     }
 
     @Test
@@ -123,6 +139,11 @@ public class WorldTest {
         assertEquals(13, world1.getCurrentMonth());
     }
 
-    
+    @Test
+    public void testNextYearInterest() {
+        world1.nextYear();
+        double tranche1Interest = (100 * Math.pow(1 + Fund.MPR, 12) - 100);
+        assertEquals(tranche1Interest, tranche1.getPreferredReturn(), 0.01);
+    }
 
 }

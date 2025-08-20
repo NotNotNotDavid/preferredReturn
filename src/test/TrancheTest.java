@@ -18,28 +18,25 @@ public class TrancheTest {
     Tranche tranche2;
     double tranche1Amount = 100;
     double tranche2Amount = 200;
-    private static final double ANNUAL_RATE = 0.08;
-    private static final double MONTHLY_RATE = ANNUAL_RATE / 12;
 
     @BeforeEach
     public void runBefore() {
         month = 1;
-        tranche1 = new Tranche(100, month, "Tranche A");
-        tranche2 = new Tranche(200, month, "Tranche B");
+        tranche1 = new Tranche(100, "Tranche A");
+        tranche2 = new Tranche(200, "Tranche B");
     }
 
     @Test
     public void testConstructor() {
         assertEquals(100, tranche1.getPrincipleRemaining(), 1);
         assertEquals(tranche1.getPreferredReturn(), 0, 0);
-        assertEquals(tranche1.getStartMonth(), 1, 0);
     }
     
     @Test
     public void testCalculateInterestMonth2(){
         month = 1;
         double principleRemaining = tranche1.getPrincipleRemaining();
-        double interest = principleRemaining * (1 + MONTHLY_RATE) - principleRemaining;
+        double interest = principleRemaining * (1 + Fund.MPR) - principleRemaining;
         assertEquals(interest, tranche1.calculateInterest(2), 1);
         assertEquals(tranche1.getPreferredReturn(), interest, 1);
     }
@@ -55,7 +52,7 @@ public class TrancheTest {
     @Test
     public void testCalculateInterestMonthNoneFurther(){
         month = 13;
-        double interest = 100 * Math.pow((1 + MONTHLY_RATE), 13) - 100;
+        double interest = 100 * Math.pow((1 + Fund.MPR), 13) - 100;
         assertEquals(interest, tranche1.calculateInterest(13), 1);
         assertEquals(tranche1.getPreferredReturn(), interest, 1);
     }

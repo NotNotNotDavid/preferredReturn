@@ -1,13 +1,13 @@
-package model;
+// package model;
 
-public class Payment {
+// public class Payment {
     
 
 
 
-    /*
-     * REQUIES: none
-     * MODIFIES: none
-     * EFFECTS: Creates a payment.. is this even needed yet?
-     */
-}
+//     /*
+//      * REQUIES: none
+//      * MODIFIES: none
+//      * EFFECTS: Creates a payment.. is this even needed yet?
+//      */
+// }
