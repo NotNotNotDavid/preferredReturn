@@ -37,9 +37,8 @@ public class World {
     public void makePayment(double amount) {
 
         double remainingAmount = amount;
-
-        while (remainingAmount > 0 && !trancheList.isEmpty()) {
-            for (Tranche tranche : trancheList) {
+        for (Tranche tranche : trancheList) {
+            if (!tranche.getifPaid()) {
                 double excess = tranche.makePayment(remainingAmount);
                 if (excess > 0) {
                     remainingAmount = excess;
@@ -47,10 +46,11 @@ public class World {
                     remainingAmount = 0;
                     break;
                 }
+            } else {
+                continue;
             }
         }
     }
-
 
     /*
      * REQUIES: none
@@ -60,9 +60,10 @@ public class World {
     public void nextMonth() {
         currentMonth++;
         for (Tranche tranche : trancheList) {
-            tranche.calculateInterest();
+            // tranche.calculateInterest(); // NOT YET
+            tranche.addMonth();
         }
-        
+
     }
 
     /*
@@ -74,7 +75,8 @@ public class World {
         for (int i = 0; i < 12; i++) {
             currentMonth++;
             for (Tranche tranche : trancheList) {
-                tranche.calculateInterest();
+                // tranche.calculateInterest(); // NOT YET
+                tranche.addMonth();
             }
         }
     }
@@ -82,11 +84,16 @@ public class World {
     /*
      * REQUIES: none
      * MODIFIES: none
-     * EFFECTS: shows the summary so far. I think this should be for the application and not in this class
+     * EFFECTS: shows all the preferredReturns from all the trenches so far.
      */
 
-    public void showSummary() {
-
+    public double showAllPreferredReturns() {
+        double total = 0;
+        for (Tranche tranche : trancheList) {
+            tranche.makePayment(0);
+            total += tranche.getPreferredReturn();
+        }
+        return total;
     }
 
     // Setters and Getters:

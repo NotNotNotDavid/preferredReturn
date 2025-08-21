@@ -36,7 +36,7 @@ public class TrancheTest {
     public void testCalculateInterestMonth2(){
         month = 1;
         double principleRemaining = tranche1.getPrincipleRemaining();
-        double interest = principleRemaining * (1 + Fund.MPR) - principleRemaining;
+        double interest = Fund.calculationMPR(100, 1);
         assertEquals(interest, tranche1.calculateInterest(2), 1);
         assertEquals(tranche1.getPreferredReturn(), interest, 1);
     }
@@ -52,9 +52,9 @@ public class TrancheTest {
     @Test
     public void testCalculateInterestMonthNoneFurther(){
         month = 13;
-        double interest = 100 * Math.pow((1 + Fund.MPR), 13) - 100;
+        double interest = Fund.calculationMPR(tranche1Amount, month);
         assertEquals(interest, tranche1.calculateInterest(13), 1);
-        assertEquals(tranche1.getPreferredReturn(), interest, 1);
+        assertEquals(tranche1.getPreferredReturn(), 0, 1);
     }
     
     @Test
@@ -76,5 +76,47 @@ public class TrancheTest {
         assertEquals(tranche1.makePayment(101.1), 1.1, 0.001);
         assertEquals(tranche1.getPrincipleRemaining(), 0, 0.001);
         assertTrue(tranche1.getifPaid());
+    }
+
+    @Test
+    public void testMakePaymentPR() {
+        // month 1
+        assertEquals(tranche1.getPrincipleRemaining(), 100, 0.001);
+        assertEquals(tranche1.getPreferredReturn(), 0, 0.001);
+
+        // simulating next month (month = 2)
+        tranche1.setMonthCounter(1);
+        tranche1.makePayment(40);
+        double interest = Fund.calculationMPR(100, 1);
+        assertEquals(tranche1.getPreferredReturn(), interest, 0.001);
+        assertEquals(tranche1.getPrincipleRemaining(), 60, 0.001);
+
+        //simulating next month (month = 3)
+        tranche1.setMonthCounter(1);
+        tranche1.makePayment(60);
+        double secondInterest = Fund.calculationMPR(60, 1);
+        assertEquals(tranche1.getPreferredReturn(), interest + secondInterest, 0.001);
+        assertEquals(tranche1.getPrincipleRemaining(), 0, 0.001);
+    }
+
+    @Test
+    public void testMakePaymentPRLonger() {
+        // month 1
+        assertEquals(tranche1.getPrincipleRemaining(), 100, 0.001);
+        assertEquals(tranche1.getPreferredReturn(), 0, 0.001);
+
+        // simulating next month (month = 2)
+        tranche1.setMonthCounter(1);
+        tranche1.makePayment(40);
+        double interest = Fund.calculationMPR(100, 1);
+        assertEquals(tranche1.getPreferredReturn(), interest, 0.001);
+        assertEquals(tranche1.getPrincipleRemaining(), 60, 0.001);
+
+        //simulating next year (month = 14)
+        tranche1.setMonthCounter(12);
+        tranche1.makePayment(60);
+        double secondInterest = Fund.calculationMPR(60, 12);
+        assertEquals(tranche1.getPreferredReturn(), interest + secondInterest, 0.001);
+        assertEquals(tranche1.getPrincipleRemaining(), 0, 0.001);
     }
 }

@@ -4,7 +4,9 @@ hey okay I changed alot like everything honestly. aug 20/2025
 
 it's going pretty well, im making lots of progress making more progress than im expecting tbh
 
+aug 21
 
-let's see where this takes us.
+okay things are pretty nice rn, it's just that there's no GUI but i think the numbers are right.
 
-also.. I try to use no AI code, and i can confirm that my code is 99.9% my code, with that 0.01% as reference. So any bad code is completely my fault
+They are off by a little bit but not too much, that is to be expected since the original was hand calculated.
+ill try to tidy things up later.

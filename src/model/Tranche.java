@@ -5,7 +5,7 @@ public class Tranche {
     private double preferredReturn; // TOTAL TRACKER
     private int monthCounter;
     private String trancheId;
-    private boolean ifPaid; 
+    private boolean ifPaid;
 
     /*
      * REQUIES: none
@@ -22,25 +22,27 @@ public class Tranche {
         monthCounter++;
     }
 
-
     /*
-     * REQUIES: POSITIVE NON-ZERO NUMBER
-     * MODIFIES: principleRemaining, ifPaid
-     * EFFECTS: makes the payment for this trench, changes ifPaid to true if fully paid off.
-     *          returns excess amounts
+     * REQUIES: POSITIVE Number, 0 is okay
+     * MODIFIES: principleRemaining, ifPaid, preferredReturn
+     * EFFECTS: makes the payment for this trench, changes ifPaid to true if fully
+     * paid off.
+     * returns excess amounts.
      * 
      */
     public double makePayment(double amount) {
         double returnAmount = 0;
 
         if (amount >= principleRemaining) {
+            findInterestForThePeriod();
             returnAmount = amount - principleRemaining;
             principleRemaining = 0;
             ifPaid = true;
             return returnAmount;
-        }
-        else {
+        } else {
+            findInterestForThePeriod();
             principleRemaining -= amount;
+            monthCounter = 0;
             return 0;
         }
 
@@ -49,7 +51,19 @@ public class Tranche {
     /*
      * REQUIES: none
      * MODIFIES: preferredReturn
-     * EFFECTS: Calculates the total accumulated intrest for that month and adds to pR if not paid
+     * EFFECTS: helper method to add on to the preferredReturn
+     * 
+     */
+    public void findInterestForThePeriod() {
+        double accuredInterest = 0.0;
+        accuredInterest = calculateInterest();
+        preferredReturn += accuredInterest;
+    }
+
+    /*
+     * REQUIES: none
+     * MODIFIES: preferredReturn
+     * EFFECTS: Calculates the total accumulated intrest for that month
      * 
      */
     public double calculateInterest(int currentMonth) {
@@ -58,9 +72,7 @@ public class Tranche {
             interestAccumulated = 0;
             return interestAccumulated;
         } else {
-            interestAccumulated = principleRemaining * Math.pow((1 + Fund.MPR), currentMonth) - principleRemaining;
-            preferredReturn += interestAccumulated;
-            currentMonth = 0; //resets back to zero for new principle
+            interestAccumulated = Fund.calculationMPR(principleRemaining, currentMonth);
             return interestAccumulated;
         }
     }
@@ -68,22 +80,21 @@ public class Tranche {
     /*
      * REQUIES: none
      * MODIFIES: preferredReturn
-     * EFFECTS: Calculates the total accumulated intrest for that month and adds to pR if not paid
+     * EFFECTS: Calculates the total accumulated intrest for that month
      * 
      */
     public double calculateInterest() {
 
         double interestAccumulated = 0;
+
         if (ifPaid) {
             interestAccumulated = 0;
             return interestAccumulated;
         } else {
-            interestAccumulated = principleRemaining * Math.pow((1 + Fund.MPR), monthCounter) - principleRemaining;
-            monthCounter = 0;
+            interestAccumulated = Fund.calculationMPR(principleRemaining, monthCounter);
             return interestAccumulated;
         }
     }
-
 
     // Getters
     public double getPrincipleRemaining() {
@@ -99,7 +110,7 @@ public class Tranche {
     }
 
     public int getMonthCounter() {
-        return getMonthCounter();
+        return monthCounter;
     }
 
     public void setMonthCounter(int counter) {
